@@ -1,37 +1,37 @@
-const app = require('express')();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const express = require('express');
+const { createServer } = require('node:http');
+const { join } = require('node:path');
+const { Server } = require('socket.io');
+const socket = require('socket.io');
+
+const app = express();
+const server = createServer(app);
+const io = new Server(server);
 const cors = require('cors');
 
 app.use(cors());
+app.use(express.json());
+
+server.listen('3002', () => {
+	console.log('Server Running on Port 3002...');
+});
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+	res.sendFile(join(__dirname, 'index.html'));
+  console.log(__dirname)
 });
 
-io.on('connection', (socket) => {
-    console.log('a user connected: ', socket.id);
+io.on('connection', socket => {
+	console.log(socket.id);
 
-    socket.on('join_room', (data) => {
-      socket.join(data);
-      console.log('user ', socket.id, ' joined room: ', data);
-    })
+	console.log('User Joined Room: ' + socket.id);
 
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
-});
+	socket.on('chat message', msg => {
+		console.log('message: ', msg);
+		io.emit('chat message', msg);
+	});
 
-// io.on('connection', (socket) => {
-//     socket.on('chat message', (msg) => {
-//         io.emit('chat message', msg);
-//     });
-// })
-
-// http.listen(3001, () => {
-//   console.log('listening on *:3001');
-// });
-
-app.listen(3001, () => {
-  console.log('listening on *:3001');
+	socket.on('disconnect', () => {
+		console.log('USER DISCONNECTED');
+	});
 });
