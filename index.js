@@ -16,7 +16,6 @@ app.use(express.json());
 
 server.listen('3002', () => {
 	console.log('Server Running on Port 3002...');
-	console.log(__dirname);
 });
 
 app.get('/', (req, res) => {
@@ -29,13 +28,7 @@ io.on('connection', socket => {
 	console.log('User Joined Room: ' + socket.id);
 
 	socket.on('new-message', (message) => {
-		console.log('inside new-message...');
-		console.log(message);
-		io.emit('new-message', message);
-	});
-
-	socket.on('welcome', arg => {
-		console.log('hellooooooooo' + arg);
+		io.emit('new-message', message.textMessage);
 	});
 
 	socket.on('disconnect', () => {
